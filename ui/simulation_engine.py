@@ -291,12 +291,12 @@ def run_simulation(
         "politician_round1": politician_response_1,
         "citizen_round1": citizen_response_1,
         "business_round1": business_response_1,
-        "custom_agent_round1": custom_response_1,
+        "custom_agent_round1": custom_response_1 if custom_agent else None,
         "activist_round1": activist_response_1,
         "politician_round2": politician_response_2,
         "citizen_round2": citizen_response_2,
         "business_round2": business_response_2,
-        "custom_agent_round2": custom_response_2,  
+        "custom_agent_round2": custom_response_2 if custom_agent else None,  
         "activist_round2": activist_response_2,
         "journalist_summary": journalist_summary,
         "judge_report": judge_report,
@@ -304,14 +304,14 @@ def run_simulation(
             "PoliticianBot": politician_response_1,
             "CitizenBot": citizen_response_1,
             "BusinessBot": business_response_1,
-            "CustomBot": custom_response_1, 
+            "CustomBot": custom_response_1 if custom_agent else None, 
             "ActivistBot": activist_response_1
         },
         "round_2": {
             "PoliticianBot": politician_response_2,
             "CitizenBot": citizen_response_2,
             "BusinessBot": business_response_2,
-            "CustomBot": custom_response_2,
+            "CustomBot": custom_response_2 if custom_agent else None,
             "ActivistBot": activist_response_2
         },
         "tone_logs": logs

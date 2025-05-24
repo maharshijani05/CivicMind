@@ -2,11 +2,12 @@ import streamlit as st
 import sys
 import pandas as pd
 import os
+import importlib
 
 # Add root path for module imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from ui.simulation_engine import run_simulation
+import ui.simulation_engine as simulation
 from memory.response_log import get_all_logs
 from utils.pdf_generator import generate_judge_pdf
 
@@ -26,7 +27,12 @@ sample_policies = [
     "Public transport fares will be reduced by 25% during peak hours.",
     "Weekly community town halls will be held to gather citizen feedback.",
     "Garbage collection will now occur only once a week to cut costs.",
-    "A ₹200 toll will be imposed on all private vehicles entering the city center."
+    "A ₹200 toll will be imposed on all private vehicles entering the city center.",
+    "All government schools will receive free AI-based personalized learning tools for students.",
+    "Local farmers' markets will receive funding for digital payment adoption and cold storage facilities.",
+    "City parks will be mapped and listed in a public directory with opening hours and amenities.",
+    "Water supply hours will be restricted to mornings only due to maintenance budget cuts.",
+    "Unemployed citizens must pay a monthly administrative fee to access job-seeking services."
 ]
 
 citizen_persona_options = [
@@ -79,7 +85,12 @@ activist_tone_options = [
 
 
 # Policy input
-policy = st.selectbox("📜 Choose a policy to simulate:", sample_policies)
+# policy = st.selectbox("📜 Choose a policy to simulate:", sample_policies)
+policy = st.selectbox(
+    "📜 Choose a policy to simulate:",
+    options=sample_policies,
+    index=0  # Optional: sets the default selected index
+)
 
 st.markdown("### 🎭 Customize Agent Personas")
 customize_tones = st.toggle("Customize Agent Tones Manually?", value=True)
@@ -132,7 +143,8 @@ custom_agent = st.session_state.get('custom_agent', None)
 
 if st.button("Run Simulation 🚀"):
     with st.spinner("Simulating A2A civic debate..."):
-        result = run_simulation(
+        importlib.reload(simulation)
+        result = simulation.run_simulation(
             policy,
             citizen_persona,
             citizen_tone,
@@ -217,6 +229,10 @@ if st.button("Run Simulation 🚀"):
         file_name="judge_report.pdf",
         mime="application/pdf"
     )
+
+    if "custom_agent" in st.session_state: 
+        del st.session_state["custom_agent"]
+
 
     # st.markdown("---")
     # st.markdown("### 🕓 Debate Timeline")
