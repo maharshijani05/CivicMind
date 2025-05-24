@@ -12,7 +12,7 @@ prior_context=[]
 persona="mayor of the city"
 tone="formal"
 
-def get_politician_response(policy: str) -> str:
+def get_politician_response(policy: str,prior_context=[], persona="mayor of the city", tone="formal") -> str:
     """
     Returns a response from PoliticianBot using MCP-style context.
     """

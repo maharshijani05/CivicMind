@@ -1,5 +1,3 @@
-# ui/app.py
-
 import streamlit as st
 import sys
 import os
@@ -55,30 +53,47 @@ if st.button("Run Simulation 🚀"):
 
     st.success("Debate complete! See what each stakeholder said:")
 
-    # Agent responses
-    st.markdown("### 🧑‍💼 PoliticianBot")
-    st.info(result["politician"])
+    # Show Round 1 responses
+    st.markdown("### Round 1 Responses")
+    st.markdown("#### 🧑‍💼 PoliticianBot")
+    st.info(result["politician_round1"])
 
-    st.markdown("### 👤 CitizenBot")
-    st.info(result["citizen"])
+    st.markdown("#### 👤 CitizenBot")
+    st.info(result["citizen_round1"])
 
-    st.markdown("### 🏪 BusinessBot")
-    st.info(result["business"])
+    st.markdown("#### 🏪 BusinessBot")
+    st.info(result["business_round1"])
 
-    st.markdown("### 🧕 ActivistBot")
-    st.info(result["activist"])
+    st.markdown("#### 🧕 ActivistBot")
+    st.info(result["activist_round1"])
+
+    st.markdown("---")
+
+    # Show Round 2 responses
+    st.markdown("### Round 2 Responses")
+    st.markdown("#### 🧑‍💼 PoliticianBot")
+    st.info(result["politician_round2"])
+
+    st.markdown("#### 👤 CitizenBot")
+    st.info(result["citizen_round2"])
+
+    st.markdown("#### 🏪 BusinessBot")
+    st.info(result["business_round2"])
+
+    st.markdown("#### 🧕 ActivistBot")
+    st.info(result["activist_round2"])
 
     st.markdown("---")
 
     # Journalist summary
     st.markdown("### 📰 JournalistBot Summary")
-    st.success(result["journalist"])
+    st.success(result["journalist_summary"])
 
     # Optional: download summary
-    st.download_button("📥 Download Summary", result["journalist"], file_name="civicmind_summary.txt")
+    st.download_button("📥 Download Summary", result["journalist_summary"], file_name="civicmind_summary.txt")
 
     st.markdown("### ⚖️ JudgeBot Evaluation")
-    st.code(result["judge"])
+    st.code(result["judge_report"])
 
 
 else:
