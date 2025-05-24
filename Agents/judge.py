@@ -1,40 +1,46 @@
 # agents/judge.py
 
 from groq import Groq
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def get_judge_evaluation(policy: str, citizen: str, business: str, politician: str, activist: str) -> str:
+def get_judge_evaluation(policy, citizen, business, politician, activist) -> str:
     """
-    JudgeBot provides a neutral, structured evaluation of the overall policy debate.
+    Returns a detailed evaluation report from JudgeBot including structured metrics, feasibility,
+    stakeholder sentiments, and recommendations.
     """
-
     prompt = f"""
-You are a neutral civic AI judge. Four stakeholders just debated a policy.
+You are JudgeBot, an AI civic policy evaluator. Analyze the following policy debate.
 
-Policy: "{policy}"
+Policy: {policy}
 
-Citizen said: {citizen}
-Business said: {business}
-Politician said: {politician}
-Activist said: {activist}
+Stakeholder Responses:
+- PoliticianBot: {politician}
+- CitizenBot: {citizen}
+- BusinessBot: {business}
+- ActivistBot: {activist}
 
-Evaluate the overall tone, fairness, and potential success of this policy.
+Now provide a structured evaluation with the following format:
 
-Output a structured summary with:
-- Equity Score (0–10)
-- Public Acceptance (0–10)
-- Economic Impact (0–10)
-- Overall Verdict
+1. **Policy Summary**: Concise summary of the policy.
+2. **Feasibility Score (1-5)**: How realistically this policy can be implemented.
+3. **Stakeholder Sentiment Scores (1-5)**:
+   - Politician:
+   - Citizen:
+   - Business:
+   - Activist:
+4. **Predicted Social Impact**: Discuss positive and negative outcomes on the society.
+5. **Potential Conflicts**: Identify key areas of disagreement or tension.
+6. **Judge Recommendation**: Accept, Revise, or Reject, with reasoning.
 """
 
     response = client.chat.completions.create(
         model="llama3-8b-8192",
         messages=[{"role": "user", "content": prompt}],
-        temperature=0.6
+        temperature=0.4
     )
 
     return response.choices[0].message.content.strip()

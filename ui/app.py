@@ -7,6 +7,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from ui.simulation_engine import run_simulation
 from memory.response_log import get_all_logs
+from utils.pdf_generator import generate_judge_pdf
+
 
 # ---------------------- Streamlit UI ----------------------
 
@@ -19,25 +21,87 @@ st.markdown("Choose a public policy and simulate how different stakeholders reac
 
 # Sample policy options
 sample_policies = [
-    "A ₹100 congestion tax will be implemented in the city center on weekdays.",
-    "Plastic bags will be completely banned in all city markets from next month.",
-    "Public parks will close at 5 PM for safety, monitored by surveillance drones.",
-    "City will increase property tax by 15% to fund green infrastructure."
+    "City will subsidize solar panel installations for residential buildings.",
+    "Public transport fares will be reduced by 25% during peak hours.",
+    "Weekly community town halls will be held to gather citizen feedback.",
+    "Garbage collection will now occur only once a week to cut costs.",
+    "A ₹200 toll will be imposed on all private vehicles entering the city center."
 ]
+
+citizen_persona_options = [
+    "low-income commuter",
+    "elderly resident",
+    "college student",
+    "daily wage worker",
+    "environment-conscious youth"
+]
+
+citizen_tone_options = [
+    "frustrated",
+    "hopeful",
+    "neutral",
+    "grateful",
+    "outraged"
+]
+
+business_persona_options = [
+    "small shop owner",
+    "restaurant manager",
+    "tech startup founder",
+    "logistics operator",
+    "mall administrator"
+]
+
+business_tone_options = [
+    "concerned",
+    "opportunistic",
+    "neutral",
+    "resistant",
+    "optimistic"
+]
+
+politician_tone_options = [
+    "formal",
+    "optimistic",
+    "technical",
+    "defensive",
+    "visionary"
+]
+
+activist_tone_options = [
+    "angry",
+    "passionate",
+    "rational",
+    "hopeful",
+    "sarcastic"
+]
+
 
 # Policy input
 policy = st.selectbox("📜 Choose a policy to simulate:", sample_policies)
 
-st.markdown("### 🎭 Customize Agent Personas (optional)")
+st.markdown("### 🎭 Customize Agent Personas")
 
-citizen_persona = st.selectbox("Citizen Persona", ["low-income commuter", "elderly resident", "college student"])
-citizen_tone = st.selectbox("Citizen Tone", ["frustrated", "hopeful", "neutral"])
+# Citizen persona + tone
+col1, col2 = st.columns(2)
+with col1:
+    citizen_persona = st.selectbox("👤 Citizen Persona",citizen_persona_options)
+with col2:
+    citizen_tone = st.selectbox("🎭 Citizen Tone",citizen_tone_options)
 
-business_persona = st.selectbox("Business Persona", ["small shop owner", "restaurant manager", "logistics operator"])
-business_tone = st.selectbox("Business Tone", ["concerned", "opportunistic", "neutral"])
+# Business persona + tone
+col3, col4 = st.columns(2)
+with col3:
+    business_persona = st.selectbox("🏪 Business Persona",business_persona_options)
+with col4:
+    business_tone = st.selectbox("📈 Business Tone",business_tone_options)
 
-politician_tone = st.selectbox("Politician Tone", ["formal", "optimistic", "technical"])
-activist_tone = st.selectbox("Activist Tone", ["angry", "passionate", "rational"])
+# Politician tone + Activist tone
+col5, col6 = st.columns(2)
+with col5:
+    politician_tone = st.selectbox("🧑‍💼 Politician Tone",politician_tone_options)
+with col6:
+    activist_tone = st.selectbox("🧕 Activist Tone",activist_tone_options)
 
 
 if st.button("Run Simulation 🚀"):
@@ -61,15 +125,15 @@ if st.button("Run Simulation 🚀"):
 
     st.markdown("#### 👤 CitizenBot")
     st.info(result["citizen_round1"])
-    st.info(f"**Sentiment Score:** {result['citizen_sentiment_1']}")
+    # st.info(f"**Sentiment Score:** {result['citizen_sentiment_1']}")
 
     st.markdown("#### 🏪 BusinessBot")
     st.info(result["business_round1"])
-    st.info(f"**Sentiment Score:** {result['business_sentiment_1']}")
+    # st.info(f"**Sentiment Score:** {result['business_sentiment_1']}")
 
     st.markdown("#### 🧕 ActivistBot")
     st.info(result["activist_round1"])
-    st.info(f"**Sentiment Score:** {result['activist_sentiment_1']}")
+    # st.info(f"**Sentiment Score:** {result['activist_sentiment_1']}")
 
     st.markdown("---")
 
@@ -80,15 +144,15 @@ if st.button("Run Simulation 🚀"):
 
     st.markdown("#### 👤 CitizenBot")
     st.info(result["citizen_round2"])
-    st.info(f"**Sentiment Score:** {result['citizen_sentiment_2']}")
+    # st.info(f"**Sentiment Score:** {result['citizen_sentiment_2']}")
 
     st.markdown("#### 🏪 BusinessBot")
     st.info(result["business_round2"])
-    st.info(f"**Sentiment Score:** {result['business_sentiment_2']}")
+    # st.info(f"**Sentiment Score:** {result['business_sentiment_2']}")
 
     st.markdown("#### 🧕 ActivistBot")
     st.info(result["activist_round2"])
-    st.info(f"**Sentiment Score:** {result['activist_sentiment_2']}")
+    # st.info(f"**Sentiment Score:** {result['activist_sentiment_2']}")
 
     st.markdown("---")
 
@@ -101,6 +165,13 @@ if st.button("Run Simulation 🚀"):
 
     st.markdown("### ⚖️ JudgeBot Evaluation")
     st.code(result["judge_report"])
+    pdf_bytes = generate_judge_pdf(result["judge_report"])
+    st.download_button(
+        label="📄 Download Judge Report (PDF)",
+        data=pdf_bytes,
+        file_name="judge_report.pdf",
+        mime="application/pdf"
+    )
 
     # st.markdown("---")
     # st.markdown("### 🕓 Debate Timeline")

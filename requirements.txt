@@ -4,3 +4,4 @@ streamlit
 chromadb
 python-dotenv
 vaderSentiment
+reportlab
