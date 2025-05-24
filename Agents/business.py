@@ -3,24 +3,22 @@
 from groq import Groq
 from dotenv import load_dotenv
 import os
+from utils.mcp_context import build_agent_prompt
 
 load_dotenv()
-
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def get_business_response(policy: str, persona: str = "small shop owner") -> str:
+def get_business_response(policy: str, prior_context=[], persona="small shop owner", tone="concerned") -> str:
     """
-    Returns a response from BusinessBot for the given policy.
+    Returns a response from BusinessBot using MCP-style context.
     """
-    prompt = f"""
-You are a business owner named Priya who runs a shop in the city center.
-You are a {persona} trying to survive in a competitive economy.
-
-A new government policy has been proposed: "{policy}".
-
-Describe how this policy could impact your business operations, customers, costs, and profitability.
-Respond from a practical and emotional point of view.
-"""
+    prompt = build_agent_prompt(
+        role="business owner",
+        policy=policy,
+        prior_context=prior_context,
+        persona=persona,
+        tone=tone
+    )
 
     response = client.chat.completions.create(
         model="llama3-8b-8192",

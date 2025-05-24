@@ -3,24 +3,26 @@
 from groq import Groq
 from dotenv import load_dotenv
 import os
+from utils.mcp_context import build_agent_prompt
 
 load_dotenv()
-
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def get_politician_response(policy: str, role: str = "Mayor of the city") -> str:
-    """
-    Returns a response from PoliticianBot defending the proposed policy.
-    """
-    prompt = f"""
-You are the {role}, speaking at a public town hall.
+prior_context=[]
+persona="mayor of the city"
+tone="formal"
 
-The proposed policy is: "{policy}"
-
-Justify this policy to the public.
-Explain the reasoning, benefits, and long-term goals.
-Address potential concerns respectfully but assertively.
-"""
+def get_politician_response(policy: str) -> str:
+    """
+    Returns a response from PoliticianBot using MCP-style context.
+    """
+    prompt = build_agent_prompt(
+        role="politician",
+        policy=policy,
+        prior_context=prior_context,
+        persona=persona,
+        tone=tone
+    )
 
     response = client.chat.completions.create(
         model="llama3-8b-8192",

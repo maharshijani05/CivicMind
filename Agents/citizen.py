@@ -3,22 +3,22 @@
 from groq import Groq
 from dotenv import load_dotenv
 import os
+from utils.mcp_context import build_agent_prompt
 
 load_dotenv()
-
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def get_citizen_response(policy: str, persona: str = "low-income worker") -> str:
+def get_citizen_response(policy: str, prior_context=[], persona="low-income commuter", tone="frustrated") -> str:
     """
-    Returns a response from CitizenBot for the given policy and persona.
+    Returns a response from CitizenBot using MCP prompt schema.
     """
-    prompt = f"""
-You are a citizen named Raj, a {persona} who lives in a crowded city.
-A new government policy has been proposed: "{policy}".
-
-Describe how this policy will affect your life.
-Respond emotionally and personally, as a real citizen might in a town hall.
-"""
+    prompt = build_agent_prompt(
+        role="citizen",
+        policy=policy,
+        prior_context=prior_context,
+        persona=persona,
+        tone=tone
+    )
 
     response = client.chat.completions.create(
         model="llama3-8b-8192",
