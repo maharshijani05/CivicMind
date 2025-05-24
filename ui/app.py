@@ -6,6 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from ui.simulation_engine import run_simulation
+from memory.response_log import get_all_logs
 
 # ---------------------- Streamlit UI ----------------------
 
@@ -60,12 +61,15 @@ if st.button("Run Simulation 🚀"):
 
     st.markdown("#### 👤 CitizenBot")
     st.info(result["citizen_round1"])
+    st.info(f"**Sentiment Score:** {result['citizen_sentiment_1']}")
 
     st.markdown("#### 🏪 BusinessBot")
     st.info(result["business_round1"])
+    st.info(f"**Sentiment Score:** {result['business_sentiment_1']}")
 
     st.markdown("#### 🧕 ActivistBot")
     st.info(result["activist_round1"])
+    st.info(f"**Sentiment Score:** {result['activist_sentiment_1']}")
 
     st.markdown("---")
 
@@ -76,12 +80,15 @@ if st.button("Run Simulation 🚀"):
 
     st.markdown("#### 👤 CitizenBot")
     st.info(result["citizen_round2"])
+    st.info(f"**Sentiment Score:** {result['citizen_sentiment_2']}")
 
     st.markdown("#### 🏪 BusinessBot")
     st.info(result["business_round2"])
+    st.info(f"**Sentiment Score:** {result['business_sentiment_2']}")
 
     st.markdown("#### 🧕 ActivistBot")
     st.info(result["activist_round2"])
+    st.info(f"**Sentiment Score:** {result['activist_sentiment_2']}")
 
     st.markdown("---")
 
@@ -94,6 +101,19 @@ if st.button("Run Simulation 🚀"):
 
     st.markdown("### ⚖️ JudgeBot Evaluation")
     st.code(result["judge_report"])
+
+    # st.markdown("---")
+    # st.markdown("### 🕓 Debate Timeline")
+
+    # timeline = get_all_logs()
+    # if timeline:
+    #     for entry in timeline:
+    #         st.markdown(f"**🗣️ {entry['agent']}**")
+    #         st.markdown(entry["text"])
+    #         st.markdown("---")
+    # else:
+    #     st.info("No debate timeline found.")
+
 
 
 else:

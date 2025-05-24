@@ -3,3 +3,4 @@ langchain
 streamlit
 chromadb
 python-dotenv
+vaderSentiment
