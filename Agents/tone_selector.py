@@ -42,6 +42,7 @@ def generate_updated_tones(policy: str, prior_responses: dict) -> dict:
             model="llama3-70b-8192",  # Ensure this is your working model
             temperature=0.7
         )
+        print("Raw LLM Response:\n", response.choices[0].message.content)
         tones = json.loads(response.choices[0].message.content.strip())
         return tones
     except Exception as e:

@@ -22,7 +22,7 @@ Policy: "{policy}"
 Stakeholder Responses:
 {prior_context}
 
-Return a Python dictionary in this exact format:
+Respond ONLY in JSON format as follows:
 {{
     "citizen": "<tone>",
     "business": "<tone>",

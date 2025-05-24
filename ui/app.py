@@ -1,5 +1,6 @@
 import streamlit as st
 import sys
+import pandas as pd
 import os
 
 # Add root path for module imports
@@ -119,8 +120,13 @@ if st.button("Run Simulation 🚀"):
             business_tone,
             politician_tone,
             activist_tone,
-            tone_mode="manual" if customize_tones else "auto"
+            tone_mode="manual" if customize_tones else "auto",
         )
+    
+    logs = result["tone_logs"]
+    
+    df_logs = pd.DataFrame(logs)
+    df_logs = df_logs.sort_values(by=["round", "agent"])
 
     st.success("Debate complete! See what each stakeholder said:")
 
@@ -168,6 +174,11 @@ if st.button("Run Simulation 🚀"):
 
     # Optional: download summary
     st.download_button("📥 Download Summary", result["journalist_summary"], file_name="civicmind_summary.txt")
+
+    st.subheader("🎭 Agent Tones by Round")
+    tone_table = df_logs.pivot(index="round", columns="agent", values="tone")
+    st.dataframe(tone_table, use_container_width=True)
+
 
     st.markdown("### ⚖️ JudgeBot Evaluation")
     st.code(result["judge_report"])

@@ -15,6 +15,7 @@ from agents.tone_selector import generate_updated_tones
 analyzer = SentimentIntensityAnalyzer()
 
 memory = AgentMemory()
+logs = []
 
 def get_sentiment_score(text: str) -> float:
     vs = analyzer.polarity_scores(text)
@@ -49,6 +50,13 @@ def run_simulation(
     politician_response_1 = get_politician_response(policy=policy,prior_context=prior_context,persona="mayor of the city", tone=politician_tone)
     memory.add_to_memory("PoliticianBot", politician_response_1)
     log_response("PoliticianBot", politician_response_1)
+    logs.append({
+    "round": 1,
+    "agent": "politician",
+    "tone": politician_tone,
+    "response": politician_response_1
+    })
+
 
     # Round 1: Citizen reacts to politician
     prior_context = [f"PoliticianBot: {politician_response_1}"]
@@ -61,6 +69,12 @@ def run_simulation(
     memory.add_to_memory("CitizenBot", citizen_response_1)
     log_response("CitizenBot", citizen_response_1)
     citizen_sentiment_1 = get_sentiment_score(citizen_response_1)
+    logs.append({
+    "round": 1,
+    "agent": "citizen",
+    "tone": citizen_tone,
+    "response": citizen_response_1
+    })
 
     # Round 1: Business reacts to both
     prior_context = [
@@ -76,6 +90,12 @@ def run_simulation(
     memory.add_to_memory("BusinessBot", business_response_1)
     log_response("BusinessBot", business_response_1)
     business_sentiment_1 = get_sentiment_score(business_response_1)
+    logs.append({
+    "round": 1,
+    "agent": "business",
+    "tone": business_tone,
+    "response": business_response_1
+    })
 
     # Round 1: Activist reacts to all
     prior_context = [
@@ -91,6 +111,12 @@ def run_simulation(
     memory.add_to_memory("ActivistBot", activist_response_1)
     log_response("ActivistBot", activist_response_1)
     activist_sentiment_1 = get_sentiment_score(activist_response_1)
+    logs.append({
+    "round": 1,
+    "agent": "activist",
+    "tone": activist_tone,
+    "response": activist_response_1
+    })
 
       # --- Round 2: Back to Politician to respond to others ---
     prior_context_round2 = [
@@ -122,6 +148,12 @@ def run_simulation(
     )
     memory.add_to_memory("PoliticianBot", politician_response_2)
     log_response("PoliticianBot", politician_response_2)
+    logs.append({
+    "round": 2,
+    "agent": "politician",
+    "tone": politician_tone,
+    "response": politician_response_2
+    })
 
     # Citizen responds again
     prior_context_round2.append(f"PoliticianBot: {politician_response_2}")
@@ -134,6 +166,12 @@ def run_simulation(
     memory.add_to_memory("CitizenBot", citizen_response_2)
     log_response("CitizenBot", citizen_response_2)
     citizen_sentiment_2 = get_sentiment_score(citizen_response_2)
+    logs.append({
+    "round": 2,
+    "agent": "citizen",
+    "tone": citizen_tone,
+    "response": citizen_response_2
+    })
 
     # Business responds again
     prior_context_round2.append(f"CitizenBot: {citizen_response_2}")
@@ -146,6 +184,12 @@ def run_simulation(
     memory.add_to_memory("BusinessBot", business_response_2)
     log_response("BusinessBot", business_response_2)
     business_sentiment_2 = get_sentiment_score(business_response_2)
+    logs.append({
+    "round": 2,
+    "agent": "business",
+    "tone": business_tone,
+    "response": business_response_2
+    })
 
     # Activist responds again
     prior_context_round2.append(f"BusinessBot: {business_response_2}")
@@ -157,6 +201,12 @@ def run_simulation(
     memory.add_to_memory("ActivistBot", activist_response_2)
     log_response("ActivistBot", activist_response_2)
     activist_sentiment_2 = get_sentiment_score(activist_response_2)
+    logs.append({
+    "round": 2,
+    "agent": "activist",
+    "tone": activist_tone,
+    "response": activist_response_2
+    })
 
     # Summarize by Journalist and Judge using full conversation history
     full_conversation = prior_context_round2 + [
@@ -195,12 +245,19 @@ def run_simulation(
         "citizen_round2": citizen_response_2,
         "business_round2": business_response_2,
         "activist_round2": activist_response_2,
-        "citizen_sentiment_1": citizen_sentiment_1,
-        "business_sentiment_1": business_sentiment_1,
-        "activist_sentiment_1": activist_sentiment_1,
-        "citizen_sentiment_2": citizen_sentiment_2,
-        "business_sentiment_2": business_sentiment_2,
-        "activist_sentiment_2": activist_sentiment_2,
         "journalist_summary": journalist_summary,
-        "judge_report": judge_report
+        "judge_report": judge_report,
+        "round_1": {
+            "PoliticianBot": politician_response_1,
+            "CitizenBot": citizen_response_1,
+            "BusinessBot": business_response_1,
+            "ActivistBot": activist_response_1
+        },
+        "round_2": {
+            "PoliticianBot": politician_response_2,
+            "CitizenBot": citizen_response_2,
+            "BusinessBot": business_response_2,
+            "ActivistBot": activist_response_2
+        },
+        "tone_logs": logs
     }
