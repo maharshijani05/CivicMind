@@ -9,6 +9,9 @@ from agents.judge import get_judge_evaluation
 from memory.memory_module import AgentMemory
 from memory.response_log import log_response
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from agents.tone_selector import generate_initial_tones
+from agents.tone_selector import generate_updated_tones
+
 analyzer = SentimentIntensityAnalyzer()
 
 memory = AgentMemory()
@@ -27,8 +30,17 @@ def run_simulation(
     business_persona: str,
     business_tone: str,
     politician_tone: str,
-    activist_tone: str
+    activist_tone: str,
+    tone_mode: str = "manual"
 ) -> dict:
+
+    if tone_mode == "auto":
+        auto_tones = generate_initial_tones(policy)
+        citizen_tone = auto_tones.get("citizen", "neutral")
+        business_tone = auto_tones.get("business", "neutral")
+        politician_tone = auto_tones.get("politician", "technical")
+        activist_tone = auto_tones.get("activist", "rational")
+
     """
     Runs the CivicMind simulation with full A2A chaining and MCP input.
     """
@@ -82,11 +94,25 @@ def run_simulation(
 
       # --- Round 2: Back to Politician to respond to others ---
     prior_context_round2 = [
-        f"PoliticianBot: {politician_response_1}",
+        f"PoliticianBot: {politician_response_1}",  
         f"CitizenBot: {citizen_response_1}",
         f"BusinessBot: {business_response_1}",
         f"ActivistBot: {activist_response_1}"
     ]
+
+    prior_responses_dict = {
+    "politician": politician_response_1,
+    "citizen": citizen_response_1,
+    "business": business_response_1,
+    "activist": activist_response_1
+    }
+    updated_tones = generate_updated_tones(policy, prior_responses_dict)
+
+    # Update tone variables from updated_tones dict
+    politician_tone = updated_tones.get("politician", politician_tone)
+    citizen_tone = updated_tones.get("citizen", citizen_tone)
+    business_tone = updated_tones.get("business", business_tone)
+    activist_tone = updated_tones.get("activist", activist_tone)
 
     politician_response_2 = get_politician_response(
         policy=policy,

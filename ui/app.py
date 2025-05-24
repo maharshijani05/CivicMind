@@ -81,27 +81,32 @@ activist_tone_options = [
 policy = st.selectbox("📜 Choose a policy to simulate:", sample_policies)
 
 st.markdown("### 🎭 Customize Agent Personas")
+customize_tones = st.toggle("Customize Agent Tones Manually?", value=True)
 
-# Citizen persona + tone
 col1, col2 = st.columns(2)
 with col1:
     citizen_persona = st.selectbox("👤 Citizen Persona",citizen_persona_options)
 with col2:
-    citizen_tone = st.selectbox("🎭 Citizen Tone",citizen_tone_options)
-
-# Business persona + tone
-col3, col4 = st.columns(2)
-with col3:
     business_persona = st.selectbox("🏪 Business Persona",business_persona_options)
-with col4:
-    business_tone = st.selectbox("📈 Business Tone",business_tone_options)
+    
+if customize_tones:
+    col3, col4 = st.columns(2)
+    with col3:
+        citizen_tone = st.selectbox("🎭 Citizen Tone",citizen_tone_options)
+    with col4:
+        business_tone = st.selectbox("📈 Business Tone",business_tone_options)
 
-# Politician tone + Activist tone
-col5, col6 = st.columns(2)
-with col5:
-    politician_tone = st.selectbox("🧑‍💼 Politician Tone",politician_tone_options)
-with col6:
-    activist_tone = st.selectbox("🧕 Activist Tone",activist_tone_options)
+    # Politician tone + Activist tone
+    col5, col6 = st.columns(2)
+    with col5:
+        politician_tone = st.selectbox("🧑‍💼 Politician Tone",politician_tone_options)
+    with col6:
+        activist_tone = st.selectbox("🧕 Activist Tone",activist_tone_options)
+else:
+    citizen_tone = None
+    business_tone = None
+    politician_tone = None
+    activist_tone = None
 
 
 if st.button("Run Simulation 🚀"):
@@ -113,7 +118,8 @@ if st.button("Run Simulation 🚀"):
             business_persona,
             business_tone,
             politician_tone,
-            activist_tone
+            activist_tone,
+            tone_mode="manual" if customize_tones else "auto"
         )
 
     st.success("Debate complete! See what each stakeholder said:")
