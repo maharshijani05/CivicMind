@@ -11,6 +11,8 @@ from memory.response_log import log_response
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from agents.tone_selector import generate_initial_tones
 from agents.tone_selector import generate_updated_tones
+from agents.custom_agent import get_custom_agent_response
+
 
 analyzer = SentimentIntensityAnalyzer()
 
@@ -32,7 +34,8 @@ def run_simulation(
     business_tone: str,
     politician_tone: str,
     activist_tone: str,
-    tone_mode: str = "manual"
+    tone_mode: str = "manual",
+    custom_agent: dict = None
 ) -> dict:
 
     if tone_mode == "auto":
@@ -97,6 +100,29 @@ def run_simulation(
     "response": business_response_1
     })
 
+    if custom_agent:
+        custom_agent_name = custom_agent["name"]
+        custom_agent_persona = custom_agent["persona"]
+        custom_agent_tone = custom_agent["tone"]
+
+        custom_response_1 = get_custom_agent_response(
+            policy=policy,
+            prior_context=prior_context,
+            persona=custom_agent_persona,
+            tone=custom_agent_tone
+        )
+        memory.add_to_memory(f"{custom_agent_name.capitalize()}Bot", custom_response_1)
+        log_response(f"{custom_agent_name.capitalize()}Bot", custom_response_1)
+        custom_sentiment_1 = get_sentiment_score(custom_response_1)
+        prior_context.append(f"{custom_agent_name.capitalize()}Bot: {custom_response_1}")
+        logs.append({
+        "round": 1,
+        "agent": custom_agent_name.lower(),
+        "tone": custom_agent_tone,
+        "response": custom_response_1
+        })
+
+
     # Round 1: Activist reacts to all
     prior_context = [
         f"PoliticianBot: {politician_response_1}",
@@ -132,6 +158,10 @@ def run_simulation(
     "business": business_response_1,
     "activist": activist_response_1
     }
+
+    if custom_agent:
+        prior_responses_dict[custom_agent_name.lower()] = custom_response_1
+
     updated_tones = generate_updated_tones(policy, prior_responses_dict)
 
     # Update tone variables from updated_tones dict
@@ -191,6 +221,25 @@ def run_simulation(
     "response": business_response_2
     })
 
+    if custom_agent:
+        custom_response_2 = get_custom_agent_response(
+            policy=policy,
+            prior_context=prior_context_round2,
+            persona=custom_agent_persona,
+            tone=updated_tones.get(custom_agent_name, custom_agent_tone)
+        )
+        memory.add_to_memory(f"{custom_agent_name.capitalize()}Bot", custom_response_2)
+        log_response(f"{custom_agent_name.capitalize()}Bot", custom_response_2)
+        prior_context_round2.append(f"{custom_agent_name.capitalize()}Bot: {custom_response_2}")
+        custom_sentiment_2 = get_sentiment_score(custom_response_2)
+        logs.append({
+        "round": 2,
+        "agent": custom_agent_name.lower(),
+        "tone": custom_agent_tone,
+        "response": custom_response_2
+        })
+
+
     # Activist responds again
     prior_context_round2.append(f"BusinessBot: {business_response_2}")
     activist_response_2 = get_activist_response(
@@ -219,7 +268,8 @@ def run_simulation(
         citizen=f"{citizen_response_1}\n{citizen_response_2}",
         business=f"{business_response_1}\n{business_response_2}",
         politician=f"{politician_response_1}\n{politician_response_2}",
-        activist=f"{activist_response_1}\n{activist_response_2}"
+        activist=f"{activist_response_1}\n{activist_response_2}",
+        custom_agent=f"{custom_response_1}\n{custom_response_2}" if custom_agent else None
     )
     memory.add_to_memory("JournalistBot", journalist_summary)
     log_response("JournalistBot", journalist_summary)
@@ -230,7 +280,8 @@ def run_simulation(
         citizen=f"{citizen_response_1}\n{citizen_response_2}",
         business=f"{business_response_1}\n{business_response_2}",
         politician=f"{politician_response_1}\n{politician_response_2}",
-        activist=f"{activist_response_1}\n{activist_response_2}"
+        activist=f"{activist_response_1}\n{activist_response_2}",
+        custom_agent=f"{custom_response_1}\n{custom_response_2}" if custom_agent else None
     )
     memory.add_to_memory("JudgeBot", judge_report)
     log_response("JudgeBot", judge_report)
@@ -240,10 +291,12 @@ def run_simulation(
         "politician_round1": politician_response_1,
         "citizen_round1": citizen_response_1,
         "business_round1": business_response_1,
+        "custom_agent_round1": custom_response_1,
         "activist_round1": activist_response_1,
         "politician_round2": politician_response_2,
         "citizen_round2": citizen_response_2,
         "business_round2": business_response_2,
+        "custom_agent_round2": custom_response_2,  
         "activist_round2": activist_response_2,
         "journalist_summary": journalist_summary,
         "judge_report": judge_report,
@@ -251,12 +304,14 @@ def run_simulation(
             "PoliticianBot": politician_response_1,
             "CitizenBot": citizen_response_1,
             "BusinessBot": business_response_1,
+            "CustomBot": custom_response_1, 
             "ActivistBot": activist_response_1
         },
         "round_2": {
             "PoliticianBot": politician_response_2,
             "CitizenBot": citizen_response_2,
             "BusinessBot": business_response_2,
+            "CustomBot": custom_response_2,
             "ActivistBot": activist_response_2
         },
         "tone_logs": logs

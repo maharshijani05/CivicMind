@@ -109,6 +109,26 @@ else:
     politician_tone = None
     activist_tone = None
 
+with st.expander("➕ Add Custom Civic Agent"):
+    custom_agent_name = st.text_input("Agent Name (e.g., 'NGO', 'Legal Expert')").strip().lower()
+    custom_agent_persona = st.text_area("Agent Persona", placeholder="Who is this agent and what do they represent?")
+    custom_agent_tone = st.selectbox("Communication Tone", ["neutral", "aggressive", "optimistic", "pessimistic", "inquisitive"])
+
+    add_custom_agent = st.button("Add Custom Agent")
+
+if add_custom_agent:
+    if custom_agent_name and custom_agent_persona:
+        st.session_state['custom_agent'] = {
+            "name": custom_agent_name,
+            "persona": custom_agent_persona,
+            "tone": custom_agent_tone
+        }
+        st.success(f"✅ Custom agent '{custom_agent_name.capitalize()}' added!")
+    else:
+        st.error("Please fill in both name and persona.")
+
+custom_agent = st.session_state.get('custom_agent', None)
+
 
 if st.button("Run Simulation 🚀"):
     with st.spinner("Simulating A2A civic debate..."):
@@ -121,6 +141,7 @@ if st.button("Run Simulation 🚀"):
             politician_tone,
             activist_tone,
             tone_mode="manual" if customize_tones else "auto",
+            custom_agent=custom_agent
         )
     
     logs = result["tone_logs"]
@@ -143,6 +164,10 @@ if st.button("Run Simulation 🚀"):
     st.info(result["business_round1"])
     # st.info(f"**Sentiment Score:** {result['business_sentiment_1']}")
 
+    if custom_agent:
+        st.markdown(f"#### 🤖 {custom_agent['name'].capitalize()}")
+        st.info(result.get("custom_agent_round1", "No response available"))
+
     st.markdown("#### 🧕 ActivistBot")
     st.info(result["activist_round1"])
     # st.info(f"**Sentiment Score:** {result['activist_sentiment_1']}")
@@ -161,6 +186,9 @@ if st.button("Run Simulation 🚀"):
     st.markdown("#### 🏪 BusinessBot")
     st.info(result["business_round2"])
     # st.info(f"**Sentiment Score:** {result['business_sentiment_2']}")
+    if custom_agent:
+        st.markdown(f"#### 🤖 {custom_agent['name'].capitalize()}")
+        st.info(result.get("custom_agent_round2", "No response available"))
 
     st.markdown("#### 🧕 ActivistBot")
     st.info(result["activist_round2"])
@@ -176,7 +204,7 @@ if st.button("Run Simulation 🚀"):
     st.download_button("📥 Download Summary", result["journalist_summary"], file_name="civicmind_summary.txt")
 
     st.subheader("🎭 Agent Tones by Round")
-    tone_table = df_logs.pivot(index="round", columns="agent", values="tone")
+    tone_table = df_logs.pivot_table(index="round", columns="agent", values="tone",aggfunc='first')
     st.dataframe(tone_table, use_container_width=True)
 
 
