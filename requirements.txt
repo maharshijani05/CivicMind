@@ -1,9 +1,9 @@
-openai
 groq
-langchain
 streamlit
-chromadb
 python-dotenv
 vaderSentiment
 reportlab
 pandas
+matplotlib
+plotly
+seaborn
