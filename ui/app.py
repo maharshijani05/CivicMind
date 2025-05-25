@@ -181,6 +181,7 @@ custom_agent = st.session_state.get('custom_agent', None)
 
 if st.button("Run Simulation 🚀"):
     with st.spinner("Simulating A2A civic debate..."):
+        st.info("⏳ This may take 2–3 minutes. Good things take time — please be patient. 😅")
         importlib.reload(simulation)
         result = simulation.run_simulation(
             policy,
