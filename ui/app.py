@@ -8,7 +8,6 @@ from collections import defaultdict
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Add root path for module imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import ui.simulation_engine as simulation
@@ -18,7 +17,7 @@ from utils.pdf_generator import generate_judge_pdf
 
 # ---------------------- Streamlit UI ----------------------
 
-st.set_page_config(page_title="CivicMind - AI Policy Simulator", layout="centered")
+st.set_page_config(page_title="CivicMind - AI Policy Simulator",page_icon="🧠", layout="centered")
 
 st.title("🧠 CivicMind")
 st.subheader("AI-Powered Local Governance Simulator")
