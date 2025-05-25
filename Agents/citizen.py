@@ -8,7 +8,7 @@ from utils.mcp_context import build_agent_prompt
 load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-def get_citizen_response(policy: str, prior_context=[], persona="low-income commuter", tone="frustrated") -> str:
+def get_citizen_response(policy: str, prior_context=[], persona="low-income commuter", tone="frustrated",reply_to_agent= "",reply_to_text= "") -> str:
     """
     Returns a response from CitizenBot using MCP prompt schema.
     """
@@ -17,7 +17,9 @@ def get_citizen_response(policy: str, prior_context=[], persona="low-income comm
         policy=policy,
         prior_context=prior_context,
         persona=persona,
-        tone=tone
+        tone=tone,
+        reply_to_agent=reply_to_agent,
+        reply_to_text=reply_to_text
     )
 
     response = client.chat.completions.create(
