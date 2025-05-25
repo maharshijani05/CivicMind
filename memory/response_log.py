@@ -4,11 +4,12 @@ from datetime import datetime
 
 response_log = []
 
-def log_response(agent, text,round_num=None):
+def log_response(agent, text,sentiment=3,round_num=None):
     response_log.append({
         "agent": agent,
         "text": text,
         "timestamp": datetime.now().isoformat(),
+        "sentiment": sentiment,
         "round_num": round_num
     })
 

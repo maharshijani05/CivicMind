@@ -13,6 +13,7 @@ from agents.tone_selector import generate_initial_tones
 from agents.tone_selector import generate_updated_tones
 from agents.custom_agent import get_custom_agent_response
 from utils.agents_responded import get_last_agent_to_respond
+from utils.sentiment import get_sentiment_score_new
 
 
 analyzer = SentimentIntensityAnalyzer()
@@ -54,7 +55,8 @@ def run_simulation(
     # Round 1: Politician proposes
     politician_response_1 = get_politician_response(policy=policy,prior_context=prior_context,persona="mayor of the city", tone=politician_tone,reply_to_agent="", reply_to_text="")
     memory.add_to_memory("PoliticianBot", politician_response_1)
-    log_response("PoliticianBot", politician_response_1,1)
+    senti = get_sentiment_score_new(policy=policy,persona="politician",tone=politician_tone,response_text=politician_response_1)
+    log_response("PoliticianBot", politician_response_1,senti,1)
     logs.append({
     "round": 1,
     "agent": "politician",
@@ -77,7 +79,10 @@ def run_simulation(
         
     )
     memory.add_to_memory("CitizenBot", citizen_response_1)
-    log_response("CitizenBot", citizen_response_1,1)
+    # policy: str, persona: str, tone: str, response_text: str
+    senti = get_sentiment_score_new(policy,citizen_persona,citizen_tone,citizen_response_1)
+
+    log_response("CitizenBot", citizen_response_1,senti,1)
     citizen_sentiment_1 = get_sentiment_score(citizen_response_1)
     logs.append({
     "round": 1,
@@ -103,7 +108,8 @@ def run_simulation(
         reply_to_text=reply_to_text
     )
     memory.add_to_memory("BusinessBot", business_response_1)
-    log_response("BusinessBot", business_response_1,1)
+    senti = get_sentiment_score_new(policy,business_persona,business_tone,business_response_1)
+    log_response("BusinessBot", business_response_1,senti,1)
     business_sentiment_1 = get_sentiment_score(business_response_1)
     logs.append({
     "round": 1,
@@ -129,7 +135,8 @@ def run_simulation(
             reply_to_text=reply_to_text
         )
         memory.add_to_memory(f"{custom_agent_name.capitalize()}Bot", custom_response_1)
-        log_response(f"{custom_agent_name.capitalize()}Bot", custom_response_1,1)
+        senti = get_sentiment_score_new(policy,custom_agent_persona,custom_agent_tone,custom_response_1)
+        log_response("CustomBot", custom_response_1,senti,1)
         custom_sentiment_1 = get_sentiment_score(custom_response_1)
         prior_context.append(f"{custom_agent_name.capitalize()}Bot: {custom_response_1}")
         logs.append({
@@ -156,7 +163,8 @@ def run_simulation(
         reply_to_text=reply_to_text
     )
     memory.add_to_memory("ActivistBot", activist_response_1)
-    log_response("ActivistBot", activist_response_1,1)
+    senti = get_sentiment_score_new(policy,"activist",activist_tone,activist_response_1)
+    log_response("ActivistBot", activist_response_1,senti,1)
     activist_sentiment_1 = get_sentiment_score(activist_response_1)
     logs.append({
     "round": 1,
@@ -203,7 +211,8 @@ def run_simulation(
         reply_to_text=reply_to_text
     )
     memory.add_to_memory("PoliticianBot", politician_response_2)
-    log_response("PoliticianBot", politician_response_2,2)
+    senti= get_sentiment_score_new(policy,"politician",politician_tone,politician_response_2)
+    log_response("PoliticianBot", politician_response_2,senti,2)
     logs.append({
     "round": 2,
     "agent": "politician",
@@ -225,7 +234,8 @@ def run_simulation(
         reply_to_text=reply_to_text
     )
     memory.add_to_memory("CitizenBot", citizen_response_2)
-    log_response("CitizenBot", citizen_response_2,2)
+    senti = get_sentiment_score_new(policy,citizen_persona,citizen_tone,citizen_response_2)
+    log_response("CitizenBot", citizen_response_2,senti,2)
     citizen_sentiment_2 = get_sentiment_score(citizen_response_2)
     logs.append({
     "round": 2,
@@ -248,7 +258,8 @@ def run_simulation(
         reply_to_text=reply_to_text
     )
     memory.add_to_memory("BusinessBot", business_response_2)
-    log_response("BusinessBot", business_response_2,2)
+    senti = get_sentiment_score_new(policy,business_persona,business_tone,business_response_2)
+    log_response("BusinessBot", business_response_2,senti,2)
     business_sentiment_2 = get_sentiment_score(business_response_2)
     logs.append({
     "round": 2,
@@ -270,7 +281,8 @@ def run_simulation(
             reply_to_text=reply_to_text
         )
         memory.add_to_memory(f"{custom_agent_name.capitalize()}Bot", custom_response_2)
-        log_response(f"{custom_agent_name.capitalize()}Bot", custom_response_2,2)
+        senti = get_sentiment_score_new(policy,custom_agent_persona,custom_agent_tone,custom_response_2)
+        log_response("CustomBot", custom_response_2,senti,2)
         prior_context_round2.append(f"{custom_agent_name.capitalize()}Bot: {custom_response_2}")
         custom_sentiment_2 = get_sentiment_score(custom_response_2)
         logs.append({
@@ -293,7 +305,8 @@ def run_simulation(
         reply_to_text=reply_to_text
     )
     memory.add_to_memory("ActivistBot", activist_response_2)
-    log_response("ActivistBot", activist_response_2,2)
+    senti = get_sentiment_score_new(policy,"activist",activist_tone,activist_response_2)
+    log_response("ActivistBot", activist_response_2,senti,2)
     activist_sentiment_2 = get_sentiment_score(activist_response_2)
     logs.append({
     "round": 2,

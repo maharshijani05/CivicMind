@@ -3,6 +3,10 @@ import sys
 import pandas as pd
 import os
 import importlib
+import plotly.graph_objects as go
+from collections import defaultdict
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 # Add root path for module imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -260,6 +264,86 @@ if st.button("Run Simulation 🚀"):
     #         mime="text/plain"
     #     )
 
+    logs = get_all_logs()
+    def prepare_sentiment_data(logs):
+        """
+        Returns a list of dictionaries containing:
+        - agent
+        - round_num
+        - sentiment
+        """
+        data = []
+
+        for entry in logs:
+            if "agent" in entry and "round_num" in entry and "sentiment" in entry:
+                data.append({
+                    "agent": entry["agent"],
+                    "round_num": entry["round_num"],
+                    "sentiment": entry["sentiment"]
+                })
+
+        return data
+
+    # def print_sentiment_scores(logs):
+    #     agents = ["PoliticianBot", "CitizenBot", "BusinessBot", "ActivistBot", "CustomBot"]
+    #     rounds = [1, 2]
+
+    #     st.markdown("### 🧠 Sentiment Scores (Per Agent Per Round)")
+    #     for round_num in rounds:
+    #         st.markdown(f"#### 🔁 Round {round_num}")
+    #         for agent in agents:
+    #             # Find the entry for this agent in this round
+    #             matching_entries = [entry for entry in logs if entry["agent"] == agent and entry["round_num"] == round_num]
+    #             if matching_entries:
+    #                 sentiment = matching_entries[0]["sentiment"]  # take first or latest, as needed
+    #                 st.write(f"**{agent}**: Sentiment Score = {sentiment}")
+    #             else:
+    #                 st.write(f"**{agent}**: No response in this round.")
+
+    # # st.markdown("### 📊 Sentiment Trends Across Rounds")
+    # print_sentiment_scores(logs)
+
+    def plot_sentiment_scores(logs):
+        """
+        Plots sentiment scores for each agent across rounds.
+        """
+        # Step 1: Prepare data
+        df = pd.DataFrame([
+            {
+                "Agent": entry["agent"].replace("Bot", ""),  # Clean up labels
+                "Round": entry["round_num"],
+                "Sentiment": entry["sentiment"]
+            }
+            for entry in logs
+            if "agent" in entry and "round_num" in entry and "sentiment" in entry
+            and entry["agent"] in ["PoliticianBot", "CitizenBot", "BusinessBot", "ActivistBot", "CustomBot"]
+        ])
+
+        if df.empty:
+            st.warning("No sentiment data available to plot.")
+            return
+        df["Sentiment"] = pd.to_numeric(df["Sentiment"], errors='coerce')
+        # Optional: sort agent names for consistency
+        agent_order = ["Citizen", "Business", "Politician", "Activist", "Custom"]
+        df["Agent"] = pd.Categorical(df["Agent"], categories=agent_order, ordered=True)
+
+        # Step 2: Plot
+        plt.figure(figsize=(10, 5))
+        sns.lineplot(data=df, x="Round", y="Sentiment", hue="Agent", marker="o", palette="Set2")
+
+        plt.ylim(0, 6)
+        plt.xticks([1, 2])
+        plt.title("Sentiment Trend Across Rounds")
+        plt.ylabel("Sentiment Score (1-5)")
+        plt.xlabel("Round")
+        plt.grid(True)
+        plt.legend(title="Agent", loc="best")
+
+        # Step 3: Streamlit display
+        st.pyplot(plt)
+
+    st.markdown("### 📊 Sentiment Trends Across Rounds")
+    plot_sentiment_scores(logs)
 
     # Journalist summary
     st.markdown("### 📰 JournalistBot Summary")
@@ -295,6 +379,13 @@ if st.button("Run Simulation 🚀"):
 
     if "custom_agent" in st.session_state: 
         del st.session_state["custom_agent"]
+    
+    if "custom_summary" in st.session_state:
+        del st.session_state["custom_summary"]
+    
+    if "simulation_result" in st.session_state:
+        del st.session_state["simulation_result"]
+
 
 
     # st.markdown("---")
