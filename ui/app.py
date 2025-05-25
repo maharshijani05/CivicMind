@@ -19,6 +19,34 @@ st.set_page_config(page_title="CivicMind - AI Policy Simulator", layout="centere
 st.title("🧠 CivicMind")
 st.subheader("AI-Powered Local Governance Simulator")
 
+st.markdown("### 🧭 Policy Explorer: Upload or Paste Policy")
+
+policy_mode = st.radio("Choose input method:", ["Upload PDF/Text File", "Paste Policy Text"])
+
+uploaded_policy_text = ""
+
+if policy_mode == "Upload PDF/Text File":
+    uploaded_file = st.file_uploader("Upload a policy file (PDF or TXT)", type=["pdf", "txt"])
+    if uploaded_file:
+        if uploaded_file.type == "application/pdf":
+            import PyPDF2
+            reader = PyPDF2.PdfReader(uploaded_file)
+            uploaded_policy_text = "\n".join([page.extract_text() for page in reader.pages])
+        elif uploaded_file.type == "text/plain":
+            uploaded_policy_text = uploaded_file.read().decode("utf-8")
+
+elif policy_mode == "Paste Policy Text":
+    uploaded_policy_text = st.text_area("Paste your policy text here", height=300)
+
+if uploaded_policy_text:
+    if st.button("🧠 Extract Summary"):
+        with st.spinner("Summarizing policy..."):
+            from utils.summarizer import summarize_policy
+            summary = summarize_policy(uploaded_policy_text)
+            st.session_state["custom_summary"] = summary
+            st.success("Summary extracted!")
+
+
 st.markdown("Choose a public policy and simulate how different stakeholders react.")
 
 # Sample policy options
@@ -86,11 +114,17 @@ activist_tone_options = [
 
 # Policy input
 # policy = st.selectbox("📜 Choose a policy to simulate:", sample_policies)
-policy = st.selectbox(
-    "📜 Choose a policy to simulate:",
-    options=sample_policies,
-    index=0  # Optional: sets the default selected index
-)
+if "custom_summary" in st.session_state:
+    st.markdown("#### 📄 Extracted Policy Summary")
+    st.info(st.session_state["custom_summary"])
+    policy = st.session_state["custom_summary"]
+
+else:
+    policy = st.selectbox(
+        "📜 Choose a policy to simulate:",
+        options=sample_policies,
+        index=0  # Optional: sets the default selected index
+    )
 
 st.markdown("### 🎭 Customize Agent Personas")
 customize_tones = st.toggle("Customize Agent Tones Manually?", value=True)
@@ -155,6 +189,8 @@ if st.button("Run Simulation 🚀"):
             tone_mode="manual" if customize_tones else "auto",
             custom_agent=custom_agent
         )
+
+    st.session_state["simulation_result"] = result
     
     logs = result["tone_logs"]
     
@@ -208,12 +244,39 @@ if st.button("Run Simulation 🚀"):
 
     st.markdown("---")
 
+# Only render results if simulation was already run
+    # if "simulation_result" in st.session_state:
+    #     result = st.session_state["simulation_result"]
+        
+    #     # Show the result (rounds, charts, etc.)
+    #     st.markdown("### 🧾 Journalist Summary")
+    #     st.write(result["journalist_summary"])
+
+    #     # Download button
+    #     st.download_button(
+    #         label="📥 Download Summary",
+    #         data=result["journalist_summary"],
+    #         file_name="civicmind_summary.txt",
+    #         mime="text/plain"
+    #     )
+
+
     # Journalist summary
     st.markdown("### 📰 JournalistBot Summary")
     st.success(result["journalist_summary"])
+    # st.download_button(
+    #         label="📥 Download Summary",
+    #         data=result["journalist_summary"],
+    #         file_name="civicmind_summary.txt",
+    #         mime="text/plain"
+    #     )
+
+    # if "simulation_result" in st.session_state:
+    #     journalist_summary = st.session_state["simulation_result"]["journalist_summary"]
+    #     st.download_button("📥 Download Summary", journalist_summary, file_name="civicmind_summary.txt")
 
     # Optional: download summary
-    st.download_button("📥 Download Summary", result["journalist_summary"], file_name="civicmind_summary.txt")
+    # st.download_button("📥 Download Summary", result["journalist_summary"], file_name="civicmind_summary.txt")
 
     st.subheader("🎭 Agent Tones by Round")
     tone_table = df_logs.pivot_table(index="round", columns="agent", values="tone",aggfunc='first')
