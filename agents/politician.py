@@ -27,7 +27,7 @@ def get_politician_response(policy: str,prior_context=[], persona="mayor of the 
     )
 
     response = client.chat.completions.create(
-        model="llama3-8b-8192",
+        model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.6
     )

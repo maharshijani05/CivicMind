@@ -11,7 +11,7 @@ def generate_initial_tones(policy: str) -> dict:
     prompt = policy_tone_selection_prompt(policy)
 
     response = llm.chat.completions.create(
-        model="llama3-8b-8192",
+        model="llama-3.1-8b-instant",
         messages=[
             {"role": "system", "content": "You are a tone selector that chooses emotional tones for 4 stakeholders based on a policy."},
             {"role": "user", "content": prompt}
@@ -39,7 +39,7 @@ def generate_updated_tones(policy: str, prior_responses: dict) -> dict:
     try:
         response = llm.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
-            model="llama3-70b-8192",  # Ensure this is your working model
+            model="llama-3.1-8b-instant",  # Ensure this is your working model
             temperature=0.7
         )
         # print("Raw LLM Response:\n", response.choices[0].message.content)

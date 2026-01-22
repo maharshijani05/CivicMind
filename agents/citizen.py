@@ -23,7 +23,7 @@ def get_citizen_response(policy: str, prior_context=[], persona="low-income comm
     )
 
     response = client.chat.completions.create(
-        model="llama3-8b-8192",
+        model="llama-3.1-8b-instant",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.7
     )
